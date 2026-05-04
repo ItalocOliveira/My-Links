@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+
+<link rel="icon" type="image/png" href="./imgs/palm_shadow.png">
+
+<meta charset="UTF-8">
+<style>
+  /* --- IMPORTAÇÕES --- */
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@300;700;900&family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  body, html {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* --- TELA DE ENTRADA (SPLASH) --- */
+  #hacker-root {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 1s ease, visibility 1s;
+  }
+
+  #splash-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1.5s ease;
+    z-index: 2;
+  }
+
+  #matrix-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.25;
+  }
+
+  .center {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .tag-line { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 5px; color: rgba(255,255,255,0.2); text-transform: uppercase; }
+  .main-text { font-family: 'Orbitron', monospace; font-weight: 300; font-size: clamp(18px, 3vw, 30px); color: #fff; letter-spacing: 2px; display: inline-block; }
+
+  .main-text .bracket { color: rgba(204, 126, 153, 0.7); font-weight: 400; }
+  .main-text .bold { font-weight: 900; }
+
+  .cursor { display: inline-block; width: 2px; height: 0.85em; background: rgba(204, 126, 153, 0.8); margin-left: 5px; vertical-align: middle; animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .divider-splash { width: 40px; height: 1px; background: rgba(255,255,255,0.12); }
+  .sub { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: rgba(204, 126, 153, 0.35); letter-spacing: 3px; text-transform: uppercase; }
+
+  .corner { position: absolute; width: 14px; height: 14px; border-color: rgba(255,255,255,0.1); border-style: solid; z-index: 3; }
+  .corner-tl { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
+  .corner-tr { top: 16px; right: 16px; border-width: 1px 1px 0 0; }
+  .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 1px 1px; }
+  .corner-br { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+  .status { position: absolute; bottom: 16px; right: 20px; z-index: 3; font-family: 'Share Tech Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.1); letter-spacing: 2px; }
+
+  /* --- CONTEÚDO PRINCIPAL (DASHBOARD) --- */
+  #main-content {
+    opacity: 0;
+    transition: opacity 4s ease;
+    visibility: hidden;
+  }
+
+  .profile-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #matrix-dashboard {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  /* NOVO: CSS para o GIF na base da segunda tela[cite: 5] */
+  .bottom-gif {
+    position: absolute;
+    bottom: 0;
+    right: 0; /* Move para a direita */
+    width: auto;
+    max-width: 100%; 
+    z-index: 0; 
+    pointer-events: none; 
+    opacity: 0.5; /* Ajuste o brilho conforme desejar */
+  }
+
+  .profile-card {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 380px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 28px 24px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+  }
+
+  .ascii-card-bg {
+    position: absolute;
+    bottom: 10px;        /* Distância do fundo do card */
+    right: 10px;         /* Distância da lateral direita do card */
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 6px;      /* Tamanho pequeno para caber no fundo */
+    line-height: 1;
+    color: rgba(204, 126, 153, 0.3); /* Cor rosa bem transparente */
+    pointer-events: none; /* Garante que você consiga clicar nos botões por cima dele */
+    z-index: -1;         /* Coloca por trás de todo o conteúdo do card */
+    text-align: right;
+    white-space: pre;    /* Preserva os espaços do seu desenho */
+    margin: 0;
+  }
+
+  .bg-gif {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(2.5);
+    width: auto; 
+    max-width: 80%; 
+    z-index: -1;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  
+
+  .avatar-section { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .avatar-ring { width: 74px; height: 74px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .avatar-inner { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: visible; }
+  .avatar-inner img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+  .profile-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin: 0; }
+  .profile-bio { font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,0.6); text-align: center; margin: 4px 0 0; }
+
+  .social-links { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+  .social-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; overflow: hidden; }
+  .social-btn img { width: 20px; height: 20px; object-fit: contain; }
+  .social-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+  .divider { height: 1px; background: rgba(255,255,255,0.1); margin: 0 0 16px; }
+
+  .music-player { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; cursor: pointer; transition: background 0.3s; position: relative; }
+  .music-player:hover { background: rgba(255,255,255,0.08); }
+  .music-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .music-thumb { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(255, 255, 255, 0.08); position: relative; }
+  .music-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .music-thumb .play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .music-thumb .play-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .music-thumb:hover .play-overlay::before { opacity: 1; }
+  .music-thumb .play-overlay svg { width: 16px; height: 16px; fill: #fff; position: relative; z-index: 1; }
+  .play-overlay .icon-pause { display: none; }
+  .play-overlay .icon-play  { display: block; }
+  #player-container.playing .play-overlay .icon-pause { display: block; }
+  #player-container.playing .play-overlay .icon-play  { display: none; }
+  #player-container.playing .music-thumb .play-overlay { opacity: 1; }
+  .music-info { flex-grow: 1; }
+  .music-info p { margin: 0; font-family: 'DM Sans', sans-serif; font-size: 11px; }
+  .music-title { font-size: 13px !important; color: #fff; font-weight: 500; }
+  .music-artist { color: rgba(255,255,255,0.4); }
+
+  .volume-wrap { display: flex; align-items: center; gap: 8px; }
+  .volume-slider { -webkit-appearance: none; width: 50px; height: 3px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; outline: none; cursor: pointer; }
+  .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: #fff; border-radius: 50%; }
+  .volume-icon svg { width: 14px; height: 14px; fill: rgba(255,255,255,0.5); display: block; }
+
+  .progress-bar-wrap { height: 3px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px; }
+  .progress-bar-fill { height: 100%; width: 0%; background: #fff; border-radius: 10px; transition: width 0.1s linear; }
+
+  .user-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+  .user-avatar-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .user-avatar-sm img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  
+  .verified-dot { 
+    width: 10px; height: 10px; border-radius: 50%; 
+    background: #962121; border: 1px solid #000; 
+    position: absolute; bottom: -2px; right: -2px;
+    display: flex; align-items: center; justify-content: center;
+    color: #1E1F20; font-family: 'Arial', sans-serif;
+    font-size: 16px; font-weight: 900; line-height: 1;
+    padding-top: 1px; box-sizing: border-box;
+  }
+
+  .user-name { font-size: 13px; font-weight: 500; color: #fff; font-family: 'DM Sans', sans-serif; margin: 0;}
+  .user-handle { font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'DM Sans', sans-serif; margin: 0;}
+  .profile-btn { margin-left: auto; background: #fff; color: #000; border: none; border-radius: 20px; padding: 5px 14px; font-size: 11px; font-weight: 600; cursor: pointer; }
+
+  .cards-column { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 380px; position: relative; z-index: 1; }
+
+  .spotify-card { width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box; }
+  .spotify-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; transition: background 0.3s; }
+  .spotify-header:hover { background: rgba(255, 255, 255, 0.05); }
+  .spotify-logo-area { display: flex; align-items: center; gap: 12px; }
+  .spotify-png { width: 22px; height: 22px; object-fit: contain; }
+  .spotify-label { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; color: #179141; }
+  .spotify-chevron { width: 16px; height: 16px; fill: rgba(255,255,255,0.3); transition: 0.3s; }
+  .spotify-chevron.open { transform: rotate(180deg); }
+  .spotify-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease, padding 0.4s ease; padding-bottom: 0; }
+  .spotify-body > div { overflow: hidden; }
+  .spotify-body.open { grid-template-rows: 1fr; padding-bottom: 10px; }
+  .track-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; transition: background 0.2s; }
+  .track-item:hover { background: rgba(255, 255, 255, 0.08); }
+  .track-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
+  .track-text { flex: 1; min-width: 0; }
+  .track-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #fff; margin: 0; font-weight: 500; }
+  .track-author { font-family: 'DM Sans', sans-serif; font-size: 11px; color: rgba(255,255,255,0.4); margin: 0; }
+</style>
+</head>
+<body>
+
+  <audio id="audio-transition"><source src="./songs/Distortion.MP3" type="audio/mpeg"></audio>
+  <audio id="audio-loop" loop><source src="./songs/LiliumOP.mp3" type="audio/mpeg"></audio>
+  <audio id="audio-whoosh"><source src="./songs/EyeSfx.MP3" type="audio/mpeg"></audio>
+
+  <div id="hacker-root" onclick="startExperience()">
+    <img src="./imgs/eye_closed.gif" id="bg-eye-gif" class="bg-gif" alt="background effect">
+
+    <div id="splash-content">
+      <canvas id="matrix-canvas"></canvas>
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      
+      <div class="center">
+        <div class="tag-line"> Make your own visible UNIVERSE </div>
+        <div class="divider-splash"></div>
+        <div class="main-text" id="dynamic-phrase">
+            <span class="bracket">&lt;</span>You must be <span class="bold">REMEMBERED</span><span class="bracket">&gt;</span><span class="cursor"></span>
+          </div>
+        <div class="divider-splash"></div>
+        <div class="sub"> Click to feel </div>
+      </div>
+      <div class="status" id="clock">00:00:00</div>
+    </div>
+  </div>
+
+  <div id="main-content">
+    <div class="profile-wrapper">
+      <canvas id="matrix-dashboard"></canvas>
+      
+      <!-- GIF alinhado na base da tela[cite: 5] -->
+      <img src="./imgs/lain_slime.gif" class="bottom-gif" alt="efeito visual">
+
+      <div class="cards-column">
+      <div class="profile-card">
+        <pre class="ascii-card-bg">
+                                            :+**********+++++++++++++*=-       
+                                           .=#**##########*##**************=.    
+                                         :=+++*****#**###******+++++++++++++*=.  
+                                       --+++++++++*+++********+++++=++++=+++**+: 
+                                     .+***************#########**************###=
+                                    .+*#**###*******#######%%####****++++********
+                                   .+*+++=+++++====+=************+++==========+++
+                                  .++++++++++++++++++++++++*++*****++++++++++++++
+                                 .+#*###**########*#*##*#######%%%%#%############
+                                 -*++****+****+***********###########****++++++++
+                                .-=-==+==---==-=======+===++++++*++=+======-=----
+                                :+++++++++++++++++++++*+************************+
+                               .+##################%#%%#%%%%%%%%%%%%%%%%%#%######
+                               .+++==+++*++======--=**#*+**###******+++++========
+                               :===---====----=-::.-+===-=++++++++++=====--------
+                               ***#*****#******+---***#++**#######***=*##########
+                              .*+#%**#%%%%%%%*++-=+*###*##%++#%##*++==*%%%%######
+                              .:.:::+===+=--::::.:-:==--=-:.::-=+=--=--=--=------
+                              .  -=-----==-==---:::-=---:..=:---==-----::-=+===--
+                                 ==*#%##%%*+++++*+=++=========+#%%#*+*+==+##+#%#+
+                                 -:=*#%##*=-+*=*#%#=------==--===-++====-=##%##**
+                                 ...-=-=+=-:--:==-==::...........:::::::::-+====-
+                                    -*+**+==--:.:=---....:. ..  ....:::---+++++++
+                                    =*#%%%#%=--=+=-:...:---........::====*##%%#%=
+                                    ..:***#%*-.........:--::.......::----+#*****.
+                                      .-:.=+==:       .................::-+=====:
+                                       :. .***+-.. .............::-:----=+*****==
+   ..                                  :   .#:--+:.......-++---------==+*++#*****
+  ::.:-.                                 .:--:   .-=:...:-====+=--:::::::::::::::
+  :......:.                           ..:.......:--:..:::::::::::----:::--:-::::.
+  .:........:.                  .:...-----.....:-=------++=---------------------:
+   ....:.......:--.            :....:-==-=-:...:---=-----=++=-----------------:::
+    .:..............::-.      :... .....-=--:....:::-=-:----==---::::::::::------
+      :-:.....   ......:::===--:::.....::-===-..::::-=+=----:-==-----------------
+          .::.............:..:-===-.....:-=+*+=--------===----=+------==--------=
+             .::---:::......:...:-=-:..:-----+===-----:---+=---=----======------=
+                  ..::.....:::::::--=------::==---+=::::---=+=--==--=-====--===--
+                      ..--------------==-------=+=-===----====+=+===========+++++
+                          :---------=-==------:--+=--=+=------===++++===+++***+**
+                           :------::::----=:..:----+=++==------==-==++++++++++++=
+                          .-=--------------+==---==+**++*+===---++*+++++++*++==++
+                         .------------====***+-=+====******+----=*#******###*####
+                     ..--:::::.:::::----======+++=-:-+++++++=-::=*=+++++++++++***
+                 :------::::::::::--:-=::=====+==+==++=======-::-=====+==++++++++
+            .=+=========---===--===-== .=###**##***#*#***#*****=+*+*########%####
+          .-------------======--:.     =*************#***#********++*############
+          .:.:::::..:.:::             -==========--=====================+++++++++
+            .---::--::               :+++==++++++++++++++++=+++++++++==+**++*****
+                ..                  :%%%%#%%##%%###%#%###%##%#%%%%#%%#%%%%%%%%%%%
+                                   .+*+++++++++++++++++++*+**+***+***************
+                                   :---------------------------------============
+                                  .=********++*+***++++++++++++++++*#************
+                                  :%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@%@%%%%%%%%@@@%
+                                  -+========================+++++****++*++++**+++
+                                 .--::::::::::::::::::::::::----=-========------=
+                                 =%%%##****##***####*****########################
+                                .#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                                -++++=++++++++++=====+++++++++++++++++++++++++++=
+                               .++++=+++++++++=--==++++++++++++++++++++++++=+====
+                               :%%%%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                               =####%##############%#%##%%%%##%###%#%############
+                               -++==++++++++==+++++++====+=++=+==================
+                               +*****************************************+++****+
+                              :%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%##%%#%%#
+                              -**************************************************
+                             :+++++++++++++++++++++++++++++++++++++++++++++++++++
+                           :*#*##****#**#*#***##**##*#***##*************#********
+                          =######################################################
+                         .=*************************+++++*+*****+****+*****+**+*+
+                         .+*******************************************+****+*++++
+                        .+#################################################*####*
+                      .-*########################################################
+        </pre>
+        <div class="avatar-section">
+          <div class="avatar-ring">
+            <div class="avatar-inner">
+              <img src="./imgs/avatar_static.png" id="main-avatar" alt="Avatar">
+            </div>
+          </div>
+          <p class="profile-name">Di$T0rT!Øn</p>
+          <p class="profile-bio">Encomende sua própria página!</p>
+        </div>
+        <div class="social-links">
+          <a href="#" class="social-btn"><img src="./imgs/discord.png" alt="Discord"></a>
+          <a href="https://www.tiktok.com/@apolloyng?lang=pt-BR" class="social-btn"><img src="./imgs/tik-tok.png" alt="TikTok"></a>
+          <a href="https://www.youtube.com/@dev_skyy" class="social-btn"><img src="./imgs/youtube.png" alt="YouTube"></a>
+        </div>
+        <div class="divider"></div>
+        <div class="music-player" id="player-container" onclick="togglePlay()">
+          <div class="music-top">
+            <div class="music-thumb"><img src="./imgs/VM.png" alt="Capa"><div class="play-overlay"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div></div>
+            <div class="music-info">
+              <p class="music-title">Lilium</p>
+              <p class="music-artist" id="status-text">tocando agora</p>
+            </div>
+            <div class="volume-wrap" onclick="event.stopPropagation()">
+              <div class="volume-icon" id="vol-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              </div>
+              <input type="range" class="volume-slider" id="volume-control" min="0" max="1" step="0.1" value="0.5">
+            </div>
+          </div>
+          <div class="progress-bar-wrap"><div id="progress-fill" class="progress-bar-fill"></div></div>
+        </div>
+        <div class="user-row">
+          <div class="user-avatar-sm">
+            <img src="./imgs/avatar_static.png" id="footer-avatar" alt="d1">
+            <div class="verified-dot"></div>
+          </div>
+          <div class="user-info"><p class="user-name">Di$T0rT!Øn</p><p class="user-handle">@dorytos</p></div>
+          <button class="profile-btn">Perfil</button>
+        </div>
+      </div>
+
+      <div class="spotify-card">
+        <div class="spotify-header" onclick="toggleSpotify()">
+          <div class="spotify-logo-area">
+            <img src="./imgs/spotify.png" class="spotify-png" alt="Spotify">
+            <span class="spotify-label">Playlist</span>
+          </div>
+          <svg class="spotify-chevron" id="spotify-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="spotify-body" id="spotify-body">
+          <div id="track-list"></div>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+/* LOGICA DE DISTORÇÃO DE TEXTO */
+const phraseElement = document.getElementById('dynamic-phrase');
+const originalText = "< You must be REMEMBERED >";
+
+function applyDistortion(text) {
+  return text.split('').map(char => {
+    let newChar = char;
+    if (Math.random() > 0.5) {
+      newChar = Math.random() > 0.5 ? newChar.toUpperCase() : newChar.toLowerCase();
+    }
+    const lower = newChar.toLowerCase();
+    if (lower === 'o') {
+      const options = ['0', 'Ø', 'o', 'O'];
+      newChar = options[Math.floor(Math.random() * options.length)];
+    } else if (lower === 's') {
+      newChar = Math.random() > 0.3 ? '$' : newChar;
+    } else if (lower === 'i') {
+      newChar = Math.random() > 0.3 ? '!' : newChar;
+    }
+    return newChar;
+  }).join('');
+}
+
+setInterval(() => {
+  if (!experienceStarted) {
+    phraseElement.innerText = applyDistortion(originalText);
+  }
+}, 150);
+
+/* LOGICA SPLASH */
+const splashCanvas = document.getElementById('matrix-canvas');
+const splashCtx = splashCanvas.getContext('2d');
+const splashRoot = document.getElementById('hacker-root');
+const audioTrans = document.getElementById('audio-transition');
+const audioLoop = document.getElementById('audio-loop');
+
+function resizeSplash() { splashCanvas.width = window.innerWidth; splashCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeSplash); resizeSplash();
+const splashFontSize = 13; const splashChars = '01アイウエオ#$@'.split('');
+let splashCols = Math.floor(splashCanvas.width / splashFontSize);
+let splashDrops = Array.from({length: splashCols}, () => Math.random() * -100);
+
+function drawSplash() {
+  splashCtx.fillStyle = 'rgba(0,0,0,0.06)'; splashCtx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+  splashCtx.fillStyle = '#CC7E99'; 
+  splashCtx.font = `${splashFontSize}px monospace`;
+  for (let i = 0; i < splashDrops.length; i++) {
+    const char = splashChars[Math.floor(Math.random() * splashChars.length)];
+    splashCtx.fillText(char, i * splashFontSize, Math.floor(splashDrops[i]) * splashFontSize);
+    splashDrops[i] += 0.2; if (splashDrops[i] * splashFontSize > splashCanvas.height && Math.random() > 0.98) splashDrops[i] = 0;
+  }
+  const d = new Date(); document.getElementById('clock').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  if(splashRoot.style.visibility !== 'hidden') requestAnimationFrame(drawSplash);
+}
+drawSplash();
+
+let experienceStarted = false;
+
+function startExperience() {
+  if (experienceStarted) return;
+  experienceStarted = true;
+
+  const audioWhoosh = document.getElementById('audio-whoosh');
+  document.getElementById('bg-eye-gif').src = "./imgs/eye_opening.gif";
+
+  audioWhoosh.volume = 0.8;
+  audioWhoosh.play();
+  audioTrans.volume = 0.5;
+  audioTrans.play();
+
+  document.getElementById('main-avatar').src = "./imgs/avatar.gif";
+  document.getElementById('footer-avatar').src = "./imgs/avatar.gif";
+
+  splashRoot.style.pointerEvents = 'none'; 
+  document.getElementById('splash-content').style.opacity = '0';
+
+  setTimeout(() => {
+    splashRoot.style.opacity = '0';
+    setTimeout(() => {
+      splashRoot.style.visibility = 'hidden';
+      const main = document.getElementById('main-content');
+      main.style.visibility = 'visible';
+      main.style.opacity = '1';
+      startDashboardMatrix();
+      audioLoop.volume = volumeControl.value;
+      audioLoop.play();
+      playerContainer.classList.add('playing');
+      statusText.innerText = "tocando agora";
+      updateVolumeIcon(volumeControl.value);
+    }, 1000);
+  }, 2500); 
+}
+
+/* LOGICA DASHBOARD */
+function startDashboardMatrix() {
+  const canvas = document.getElementById('matrix-dashboard'); const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  const chars = 'アイウエオABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+  const fontSize = 16; const cols = Math.floor(canvas.width / fontSize);
+  const drops = Array.from({length: cols}, () => Math.random() * -50);
+  const speeds = Array.from({length: cols}, () => 0.3 + Math.random() * 0.7);
+  const brightness = Array.from({length: cols}, () => 0);
+  
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const y = Math.floor(drops[i]) * fontSize; const x = i * fontSize;
+      ctx.fillStyle = brightness[i] > 0.8 ? `#fff` : `#CC7E99`;
+      ctx.font = `${fontSize}px monospace`; ctx.fillText(char, x, y);
+      brightness[i] = Math.max(0, brightness[i] - 0.05); drops[i] += speeds[i];
+      if (y > canvas.height && Math.random() > 0.975) { drops[i] = 0; brightness[i] = 1; }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* LOGICA PLAYER & VOLUME*/
+const progressFill = document.getElementById('progress-fill');
+const statusText = document.getElementById('status-text');
+const playerContainer = document.getElementById('player-container');
+const volumeControl = document.getElementById('volume-control');
+const volIconDiv = document.getElementById('vol-icon');
+
+function updateVolumeIcon(val) {
+  if (val == 0) {
+    volIconDiv.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.58.45-1.24.8-1.95.98v2.04c1.23-.22 2.35-.74 3.3-1.48L19.73 21 21 19.73 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+  } else if (val <= 0.6) {
+    volIconDiv.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+  } else {
+    volIconDiv.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+  }
+}
+
+function togglePlay() {
+  if (audioLoop.paused) {
+    audioLoop.play(); playerContainer.classList.add('playing'); statusText.innerText = "tocando agora";
+  } else {
+    audioLoop.pause(); playerContainer.classList.remove('playing'); statusText.innerText = "pausado";
+  }
+}
+
+volumeControl.addEventListener('input', function() {
+  audioLoop.volume = this.value;
+  updateVolumeIcon(this.value);
+});
+
+audioLoop.ontimeupdate = function() { progressFill.style.width = (audioLoop.currentTime / audioLoop.duration) * 100 + "%"; };
+
+/* LOGICA PLAYLIST */
+const tracks = [
+  { id: 'lilium',  title: 'Lilium', artist: 'Elfen Lied', src: './songs/LiliumOP.mp3', img: './imgs/VM.png' },
+  { id: 'trust',   title: 'Trust', artist: 'Introit', src: './songs/Men I Trust - Introit ft. Odile.mp3', img: './imgs/MenITrust.png' },
+  { id: 'chimerical',  title: 'Chimerical', artist: 'Kyonpalm', src: './songs/chimerical.mp3', img: './imgs/chimerical.jpg' }
+];
+
+let currentMainTrack = tracks[0];
+let playlistTracks = [tracks[1], tracks[2]];
+
+function renderPlaylist() {
+  const container = document.getElementById('track-list');
+  container.innerHTML = '';
+  playlistTracks.forEach(track => {
+    const div = document.createElement('div');
+    div.className = 'track-item';
+    div.innerHTML = `
+      <img src="${track.img}" class="track-img" alt="${track.title}">
+      <div class="track-text">
+        <p class="track-name">${track.title}</p>
+        <p class="track-author">${track.artist}</p>
+      </div>
+    `;
+    div.onclick = () => swapTrack(track);
+    container.appendChild(div);
+  });
+}
+
+function swapTrack(selectedTrack) {
+  const previousMain = currentMainTrack;
+  currentMainTrack = selectedTrack;
+  playlistTracks = playlistTracks.filter(t => t.id !== selectedTrack.id);
+  playlistTracks.push(previousMain);
+  document.querySelector('.music-title').textContent = selectedTrack.title;
+  document.querySelector('.music-thumb img').src = selectedTrack.img;
+  audioLoop.src = selectedTrack.src;
+  audioLoop.play();
+  playerContainer.classList.add('playing');
+  statusText.innerText = "tocando agora";
+  renderPlaylist();
+}
+
+function toggleSpotify() {
+  const body = document.getElementById('spotify-body');
+  const chevron = document.getElementById('spotify-chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+renderPlaylist();
+</script>
+</body>
+</html>
