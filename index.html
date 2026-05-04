@@ -189,25 +189,18 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
+    background: rgba(0, 0, 0, 0);
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease, background 0.25s ease;
+    z-index: 2;
   }
-  .music-thumb .play-overlay::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
-  .music-thumb:hover .play-overlay::before { opacity: 1; }
+  .music-thumb:hover .play-overlay { opacity: 1; background: rgba(0, 0, 0, 0.5); }
   .music-thumb .play-overlay svg { width: 16px; height: 16px; fill: #fff; position: relative; z-index: 1; }
   .play-overlay .icon-pause { display: none; }
   .play-overlay .icon-play  { display: block; }
   #player-container.playing .play-overlay .icon-pause { display: block; }
   #player-container.playing .play-overlay .icon-play  { display: none; }
-  #player-container.playing .music-thumb .play-overlay { opacity: 1; }
+  #player-container.playing .music-thumb .play-overlay { opacity: 1; background: rgba(0, 0, 0, 0.45); }
   .music-info { flex-grow: 1; }
   .music-info p { margin: 0; font-family: 'DM Sans', sans-serif; font-size: 11px; }
   .music-title { font-size: 13px !important; color: #fff; font-weight: 500; }
@@ -263,8 +256,9 @@
 <body>
 
   <audio id="audio-transition"><source src="./songs/Distortion.MP3" type="audio/mpeg"></audio>
-  <audio id="audio-loop" loop><source src="./songs/LiliumOP.mp3" type="audio/mpeg"></audio>
+  <audio id="audio-loop" loop><source src="./songs/chimerical.mp3" type="audio/mpeg"></audio>
   <audio id="audio-whoosh"><source src="./songs/EyeSfx.MP3" type="audio/mpeg"></audio>
+  <audio id="audio-bg-effect" loop><source src="./songs/background_keyboard.MP3" type="audio/mpeg"></audio>
 
   <div id="hacker-root" onclick="startExperience()">
     <img src="./imgs/eye_closed.gif" id="bg-eye-gif" class="bg-gif" alt="background effect">
@@ -291,7 +285,6 @@
     <div class="profile-wrapper">
       <canvas id="matrix-dashboard"></canvas>
       
-      <!-- GIF alinhado na base da tela[cite: 5] -->
       <img src="./imgs/lain_slime.gif" class="bottom-gif" alt="efeito visual">
 
       <div class="cards-column">
@@ -381,16 +374,28 @@
         </div>
         <div class="social-links">
           <a href="#" class="social-btn"><img src="./imgs/discord.png" alt="Discord"></a>
-          <a href="https://www.tiktok.com/@apolloyng?lang=pt-BR" class="social-btn"><img src="./imgs/tik-tok.png" alt="TikTok"></a>
+          <a href="https://www.tiktok.com/@apolloyng?lang=pt-BR" class="social-btn"><img src="./imgs/tik-tok.png" alt="Tiktok"></a>
           <a href="https://www.youtube.com/@dev_skyy" class="social-btn"><img src="./imgs/youtube.png" alt="YouTube"></a>
         </div>
         <div class="divider"></div>
         <div class="music-player" id="player-container" onclick="togglePlay()">
           <div class="music-top">
-            <div class="music-thumb"><img src="./imgs/VM.png" alt="Capa"><div class="play-overlay"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div></div>
+            <div class="music-thumb">
+              <img src="" id="main-track-img" alt="Capa">
+              <div class="play-overlay">
+                <!-- Ícone Play -->
+                <svg class="icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                <!-- Ícone Pause -->
+                <svg class="icon-pause" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+              </div>
+            </div>
             <div class="music-info">
-              <p class="music-title">Lilium</p>
-              <p class="music-artist" id="status-text">tocando agora</p>
+              <p class="music-title" id="main-track-title">Carregando...</p>
+              <p class="music-artist" id="status-text">aguardando</p>
             </div>
             <div class="volume-wrap" onclick="event.stopPropagation()">
               <div class="volume-icon" id="vol-icon">
@@ -429,7 +434,7 @@
   </div>
 
 <script>
-/* LOGICA DE DISTORÇÃO DE TEXTO */
+/*  LOGICA DE DISTORÇÃO DE TEXTO  */
 const phraseElement = document.getElementById('dynamic-phrase');
 const originalText = "< You must be REMEMBERED >";
 
@@ -458,12 +463,13 @@ setInterval(() => {
   }
 }, 150);
 
-/* LOGICA SPLASH */
+/* LOGICA SPLASH  */
 const splashCanvas = document.getElementById('matrix-canvas');
 const splashCtx = splashCanvas.getContext('2d');
 const splashRoot = document.getElementById('hacker-root');
 const audioTrans = document.getElementById('audio-transition');
 const audioLoop = document.getElementById('audio-loop');
+const audioEffect = document.getElementById('audio-bg-effect');
 
 function resizeSplash() { splashCanvas.width = window.innerWidth; splashCanvas.height = window.innerHeight; }
 window.addEventListener('resize', resizeSplash); resizeSplash();
@@ -518,11 +524,13 @@ function startExperience() {
       playerContainer.classList.add('playing');
       statusText.innerText = "tocando agora";
       updateVolumeIcon(volumeControl.value);
+      audioEffect.volume = 0.12;
+      audioEffect.play();
     }, 1000);
   }, 2500); 
 }
 
-/* LOGICA DASHBOARD */
+/*  LOGICA DASHBOARD  */
 function startDashboardMatrix() {
   const canvas = document.getElementById('matrix-dashboard'); const ctx = canvas.getContext('2d');
   function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -548,7 +556,7 @@ function startDashboardMatrix() {
   draw();
 }
 
-/* LOGICA PLAYER & VOLUME*/
+/*  LOGICA PLAYER & VOLUME  */
 const progressFill = document.getElementById('progress-fill');
 const statusText = document.getElementById('status-text');
 const playerContainer = document.getElementById('player-container');
@@ -580,15 +588,22 @@ volumeControl.addEventListener('input', function() {
 
 audioLoop.ontimeupdate = function() { progressFill.style.width = (audioLoop.currentTime / audioLoop.duration) * 100 + "%"; };
 
-/* LOGICA PLAYLIST */
+/*  LOGICA SPOTIFY ATUALIZADA  */
 const tracks = [
+  { id: 'chimerical',  title: 'Chimerical', artist: 'Kyonpalm', src: './songs/chimerical.mp3', img: './imgs/chimerical.jpg' },
   { id: 'lilium',  title: 'Lilium', artist: 'Elfen Lied', src: './songs/LiliumOP.mp3', img: './imgs/VM.png' },
-  { id: 'trust',   title: 'Trust', artist: 'Introit', src: './songs/Men I Trust - Introit ft. Odile.mp3', img: './imgs/MenITrust.png' },
-  { id: 'chimerical',  title: 'Chimerical', artist: 'Kyonpalm', src: './songs/chimerical.mp3', img: './imgs/chimerical.jpg' }
+  { id: 'trust',   title: 'Trust', artist: 'Introit', src: './songs/Men I Trust - Introit ft. Odile.mp3', img: './imgs/MenITrust.png' }
 ];
 
-let currentMainTrack = tracks[0];
-let playlistTracks = [tracks[1], tracks[2]];
+let currentMainTrack = tracks[0]; 
+// Filtra a playlist para mostrar todas EXCETO a que está tocando
+let playlistTracks = tracks.filter(t => t.id !== currentMainTrack.id);
+
+function updateMainPlayer(track) {
+  document.getElementById('main-track-title').textContent = track.title;
+  document.getElementById('main-track-img').src = track.img;
+  audioLoop.src = track.src;
+}
 
 function renderPlaylist() {
   const container = document.getElementById('track-list');
@@ -609,13 +624,16 @@ function renderPlaylist() {
 }
 
 function swapTrack(selectedTrack) {
+  // A música que estava no player volta para a lista da playlist
   const previousMain = currentMainTrack;
+  
+  // A música selecionada vira a principal
   currentMainTrack = selectedTrack;
-  playlistTracks = playlistTracks.filter(t => t.id !== selectedTrack.id);
-  playlistTracks.push(previousMain);
-  document.querySelector('.music-title').textContent = selectedTrack.title;
-  document.querySelector('.music-thumb img').src = selectedTrack.img;
-  audioLoop.src = selectedTrack.src;
+  
+  // Atualiza a lista da playlist
+  playlistTracks = tracks.filter(t => t.id !== selectedTrack.id);
+  
+  updateMainPlayer(currentMainTrack);
   audioLoop.play();
   playerContainer.classList.add('playing');
   statusText.innerText = "tocando agora";
@@ -629,6 +647,7 @@ function toggleSpotify() {
   chevron.classList.toggle('open');
 }
 
+updateMainPlayer(currentMainTrack);
 renderPlaylist();
 </script>
 </body>
