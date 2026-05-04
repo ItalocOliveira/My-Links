@@ -5,17 +5,22 @@
 <link rel="icon" type="image/png" href="./imgs/palm_shadow.png">
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
   /* --- IMPORTAÇÕES --- */
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@300;700;900&family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; }
 
   body, html {
     margin: 0;
     padding: 0;
     background-color: #000;
     overflow-x: hidden;
-    height: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
     width: 100%;
+    -webkit-text-size-adjust: 100%;
   }
 
   /* --- TELA DE ENTRADA (SPLASH) --- */
@@ -23,7 +28,10 @@
     position: fixed;
     top: 0; left: 0;
     width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
     height: 100vh;
+    height: 100dvh;
     background: #000;
     z-index: 100;
     display: flex;
@@ -251,6 +259,115 @@
   .track-text { flex: 1; min-width: 0; }
   .track-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #fff; margin: 0; font-weight: 500; }
   .track-author { font-family: 'DM Sans', sans-serif; font-size: 11px; color: rgba(255,255,255,0.4); margin: 0; }
+
+  /* --- Mobile / telas estreitas --- */
+  @media (max-width: 768px) {
+    .profile-wrapper {
+      min-height: 100dvh;
+      padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+    }
+
+    .cards-column { max-width: 100%; }
+
+    .profile-card {
+      padding: 22px 18px;
+      border-radius: 20px;
+      max-width: 100%;
+    }
+
+    .ascii-card-bg { font-size: 4px; bottom: 6px; right: 6px; }
+
+    .bg-gif {
+      transform: translate(-50%, -50%) scale(1.75);
+      max-width: 100%;
+    }
+
+    .bottom-gif {
+      max-width: 100%;
+      right: 0;
+      left: auto;
+    }
+
+    .social-links {
+      flex-wrap: wrap;
+      gap: 10px;
+      row-gap: 12px;
+    }
+
+    .music-top {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      row-gap: 8px;
+    }
+
+    .music-info {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .music-title, .music-info p { word-break: break-word; }
+
+    .volume-wrap {
+      flex: 1 1 100%;
+      justify-content: flex-end;
+      order: 3;
+      padding-top: 2px;
+    }
+
+    .volume-slider {
+      width: min(140px, 45vw);
+      flex: 1 1 auto;
+      max-width: 180px;
+      min-height: 28px;
+    }
+
+    .user-row {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .user-info {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .user-name, .user-handle {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile-btn {
+      margin-left: 0;
+      margin-top: 2px;
+    }
+
+    .spotify-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+    .spotify-logo-area { min-width: 0; }
+    .track-item { padding: 10px 16px; }
+
+    .corner-tl { top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); }
+    .corner-tr { top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); }
+    .corner-bl { bottom: max(12px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); }
+    .corner-br { bottom: max(12px, env(safe-area-inset-bottom)); right: max(12px, env(safe-area-inset-right)); }
+
+    .status {
+      bottom: max(14px, env(safe-area-inset-bottom));
+      right: max(16px, env(safe-area-inset-right));
+    }
+
+    .center { padding: 0 clamp(12px, 4vw, 24px); box-sizing: border-box; max-width: 100%; }
+    .main-text { line-height: 1.35; }
+  }
+
+  @media (max-width: 380px) {
+    .main-text { font-size: clamp(15px, 4.5vw, 22px); letter-spacing: 1px; }
+    .tag-line { letter-spacing: 3px; font-size: 9px; }
+    .sub { letter-spacing: 2px; }
+
+    .profile-name { font-size: 18px; }
+    .social-btn { width: 40px; height: 40px; }
+  }
 </style>
 </head>
 <body>
@@ -474,11 +591,22 @@ const audioTrans = document.getElementById('audio-transition');
 const audioLoop = document.getElementById('audio-loop');
 const audioEffect = document.getElementById('audio-bg-effect');
 
-function resizeSplash() { splashCanvas.width = window.innerWidth; splashCanvas.height = window.innerHeight; }
-window.addEventListener('resize', resizeSplash); resizeSplash();
 const splashFontSize = 13; const splashChars = '01アイウエオ#$@'.split('');
-let splashCols = Math.floor(splashCanvas.width / splashFontSize);
-let splashDrops = Array.from({length: splashCols}, () => Math.random() * -100);
+let splashCols = 0;
+let splashDrops = [];
+function resizeSplash() {
+  splashCanvas.width = window.innerWidth;
+  splashCanvas.height = window.innerHeight;
+  const nextCols = Math.floor(splashCanvas.width / splashFontSize);
+  if (nextCols !== splashCols) {
+    const prev = splashDrops;
+    splashCols = nextCols;
+    splashDrops = Array.from({ length: splashCols }, (_, i) =>
+      prev[i] !== undefined ? prev[i] : Math.random() * -100
+    );
+  }
+}
+window.addEventListener('resize', resizeSplash); resizeSplash();
 
 function drawSplash() {
   splashCtx.fillStyle = 'rgba(0,0,0,0.06)'; splashCtx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
@@ -535,15 +663,30 @@ function startExperience() {
 
 /*  LOGICA DASHBOARD  */
 function startDashboardMatrix() {
-  const canvas = document.getElementById('matrix-dashboard'); const ctx = canvas.getContext('2d');
-  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resize); resize();
+  const canvas = document.getElementById('matrix-dashboard');
+  const ctx = canvas.getContext('2d');
   const chars = 'アイウエオABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
-  const fontSize = 16; const cols = Math.floor(canvas.width / fontSize);
-  const drops = Array.from({length: cols}, () => Math.random() * -50);
-  const speeds = Array.from({length: cols}, () => 0.3 + Math.random() * 0.7);
-  const brightness = Array.from({length: cols}, () => 0);
-  
+  const fontSize = 16;
+  let drops = [];
+  let speeds = [];
+  let brightness = [];
+
+  function rebuildColumns() {
+    const cols = Math.max(1, Math.floor(canvas.width / fontSize));
+    const prevDrops = drops, prevSpeeds = speeds, prevBright = brightness;
+    drops = Array.from({ length: cols }, (_, i) => (prevDrops[i] !== undefined ? prevDrops[i] : Math.random() * -50));
+    speeds = Array.from({ length: cols }, (_, i) => (prevSpeeds[i] !== undefined ? prevSpeeds[i] : 0.3 + Math.random() * 0.7));
+    brightness = Array.from({ length: cols }, (_, i) => (prevBright[i] !== undefined ? prevBright[i] : 0));
+  }
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    rebuildColumns();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
   function draw() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < drops.length; i++) {
