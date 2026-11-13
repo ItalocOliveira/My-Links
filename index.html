@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 
-<link rel="icon" type="image/png" href="./imgs/palm_shadow.png">
+<link rel="icon" type="image/png" href="./imgs/closed_eye.png">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -368,6 +368,398 @@
     .profile-name { font-size: 18px; }
     .social-btn { width: 40px; height: 40px; }
   }
+
+  /* ============================================================ */
+  /* LAIN ENHANCEMENTS — adicionados sobre a base 1.0             */
+  /* ============================================================ */
+
+  /* Cursor crosshair rosa */
+  html, body {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><circle cx='14' cy='14' r='1.4' fill='%23CC7E99'/><circle cx='14' cy='14' r='6' fill='none' stroke='%23CC7E99' stroke-opacity='0.35' stroke-width='0.6'/><line x1='14' y1='1' x2='14' y2='9' stroke='%23CC7E99' stroke-width='0.9'/><line x1='14' y1='19' x2='14' y2='27' stroke='%23CC7E99' stroke-width='0.9'/><line x1='1' y1='14' x2='9' y2='14' stroke='%23CC7E99' stroke-width='0.9'/><line x1='19' y1='14' x2='27' y2='14' stroke='%23CC7E99' stroke-width='0.9'/></svg>") 14 14, crosshair;
+  }
+  a, button, .music-player, .spotify-header, .track-item, #hacker-root, .profile-btn {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><circle cx='14' cy='14' r='2.5' fill='%23CC7E99'/><circle cx='14' cy='14' r='9' fill='none' stroke='%23CC7E99' stroke-opacity='0.6' stroke-width='0.8'/><circle cx='14' cy='14' r='12' fill='none' stroke='%23CC7E99' stroke-opacity='0.25' stroke-width='0.6'/></svg>") 14 14, pointer !important;
+  }
+
+  /* CRT scanlines */
+  .crt-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.18) 0px,
+      rgba(0,0,0,0.18) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+  .crt-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: 200%;
+    background: linear-gradient(
+      to bottom,
+      rgba(204,126,153,0) 0%,
+      rgba(204,126,153,0.05) 50%,
+      rgba(204,126,153,0) 100%
+    );
+    animation: scanSweep 7s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes scanSweep {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(0%); }
+  }
+
+  /* Vinheta */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* TV Static */
+  #static-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 8;
+    opacity: 0.04;
+  }
+
+  /* Cursor trail */
+  .trail-dot {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #CC7E99;
+    box-shadow: 0 0 10px #CC7E99, 0 0 22px rgba(204,126,153,0.6);
+    pointer-events: none;
+    z-index: 9996;
+    transform: translate(-50%, -50%);
+    animation: trailFade 0.9s ease-out forwards;
+  }
+  @keyframes trailFade {
+    0%   { opacity: 0.85; transform: translate(-50%,-50%) scale(1); }
+    100% { opacity: 0;    transform: translate(-50%,-50%) scale(0.1); }
+  }
+
+  /* Glitch chromatic no nome do perfil */
+  .glitch-text { position: relative; display: inline-block; }
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .glitch-text.glitching::before {
+    opacity: 1;
+    color: #fff;
+    text-shadow: -2px 0 #ff2d55;
+    clip-path: inset(15% 0 60% 0);
+    animation: glitchSlice1 0.45s steps(3, end);
+  }
+  .glitch-text.glitching::after {
+    opacity: 1;
+    color: #fff;
+    text-shadow: 2px 0 #00fff0;
+    clip-path: inset(60% 0 15% 0);
+    animation: glitchSlice2 0.45s steps(3, end);
+  }
+  @keyframes glitchSlice1 {
+    0%   { clip-path: inset(15% 0 60% 0); transform: translateX(0); }
+    50%  { clip-path: inset(80% 0 5%  0); transform: translateX(2px); }
+    100% { clip-path: inset(15% 0 60% 0); transform: translateX(0); }
+  }
+  @keyframes glitchSlice2 {
+    0%   { clip-path: inset(60% 0 15% 0); transform: translateX(0); }
+    50%  { clip-path: inset(40% 0 35% 0); transform: translateX(-2px); }
+    100% { clip-path: inset(60% 0 15% 0); transform: translateX(0); }
+  }
+
+  /* Screen tear */
+  @keyframes screenTear {
+    0%   { transform: translate(0,0);      filter: hue-rotate(0deg); }
+    10%  { transform: translate(-6px,1px); filter: hue-rotate(70deg) saturate(1.4); }
+    20%  { transform: translate(4px,-2px); filter: hue-rotate(-40deg); }
+    40%  { transform: translate(0,0);      filter: none; }
+    100% { transform: translate(0,0);      filter: none; }
+  }
+  .screen-tear { animation: screenTear 0.35s ease-in-out; }
+
+  /* "Present day, present time" na splash */
+  .present-day {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: rgba(204,126,153,0.85);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    z-index: 3;
+    pointer-events: none;
+    text-shadow: 0 0 12px rgba(204,126,153,0.6);
+    white-space: nowrap;
+    animation: ghostBlink 4s ease-in-out infinite;
+  }
+  .present-day .haha {
+    color: rgba(255,255,255,0.5);
+    margin-left: 8px;
+    letter-spacing: 5px;
+    font-style: italic;
+  }
+  @keyframes ghostBlink {
+    0%, 92%, 100% { opacity: 0.9; }
+    93%           { opacity: 0.1; }
+    95%           { opacity: 0.2; }
+    96%           { opacity: 1;   }
+  }
+
+  /* Boot lines na splash */
+  .boot-lines {
+    position: absolute;
+    bottom: 50px;
+    left: 24px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(204,126,153,0.55);
+    letter-spacing: 1.6px;
+    text-align: left;
+    z-index: 3;
+    pointer-events: none;
+    text-transform: uppercase;
+    line-height: 1.7;
+  }
+  .boot-line { opacity: 0; transition: opacity 0.25s ease; white-space: nowrap; }
+  .boot-line.visible { opacity: 1; }
+  .boot-line .ok  { color: #7CFFB0; }
+  .boot-line .err { color: #ff5577; }
+  .boot-line .dim { color: rgba(255,255,255,0.2); }
+
+  /* Floating Wired terms */
+  #floating-terms {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .floating-term {
+    position: absolute;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: rgba(204,126,153,0.22);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  @keyframes driftRight {
+    0%   { transform: translateX(-15vw); opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translateX(115vw); opacity: 0; }
+  }
+  @keyframes driftLeft {
+    0%   { transform: translateX(115vw); opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translateX(-15vw); opacity: 0; }
+  }
+
+  /* Lain peek no canto */
+  .lain-peek {
+    position: fixed;
+    bottom: 0;
+    left: -40px;
+    width: 170px;
+    height: auto;
+    opacity: 0;
+    mix-blend-mode: lighten;
+    z-index: 1;
+    pointer-events: none;
+    filter: contrast(1.25) saturate(0.55) hue-rotate(-10deg);
+    transform: translateY(60%) scale(0.95);
+    transition: transform 1.4s cubic-bezier(.25,.85,.4,1), opacity 1.4s ease;
+  }
+  .lain-peek.show { transform: translateY(0) scale(1); opacity: 0.55; }
+
+  /* Eye flash no clique da splash */
+  #eye-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.85) 0%, rgba(204,126,153,0.4) 30%, rgba(0,0,0,0) 70%);
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.55s ease-out;
+  }
+  #eye-flash.flash { opacity: 1; }
+
+  /* Easter egg overlay */
+  #easter-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  #easter-overlay.show {
+    display: flex;
+    pointer-events: auto;
+    animation: easterFadeIn 0.45s ease forwards;
+  }
+  @keyframes easterFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  #easter-overlay .easter-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('./lain-assets/Serial%20Experiments%20Lain.gif');
+    background-size: cover;
+    background-position: center;
+    filter: contrast(1.15) brightness(0.85);
+  }
+  #easter-overlay .easter-tint {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%);
+  }
+  #easter-overlay .easter-text {
+    position: absolute;
+    bottom: 14%;
+    width: 100%;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 10px;
+    text-shadow: 0 0 14px rgba(204,126,153,0.8), 2px 0 #ff2d55, -2px 0 #00fff0;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+  #easter-overlay .easter-sub {
+    position: absolute;
+    bottom: 9%;
+    width: 100%;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    color: rgba(204,126,153,0.7);
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  /* WIRED HUD */
+  .wired-hud {
+    position: fixed;
+    bottom: 14px;
+    left: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(204,126,153,0.5);
+    letter-spacing: 1.5px;
+    line-height: 1.7;
+    z-index: 50;
+    pointer-events: none;
+    text-transform: uppercase;
+  }
+  .wired-hud .label { color: rgba(255,255,255,0.3); }
+  .wired-hud .ok    { color: #7CFFB0; }
+  .wired-hud .val   { color: #fff; opacity: 0.7; }
+
+  /* Signal indicator */
+  .wired-signal {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(204,126,153,0.5);
+    letter-spacing: 2px;
+    z-index: 50;
+    pointer-events: none;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wired-signal .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .wired-signal .bars span {
+    width: 3px;
+    background: #CC7E99;
+    box-shadow: 0 0 5px #CC7E99;
+    animation: barPulse 1.6s ease-in-out infinite;
+  }
+  .wired-signal .bars span:nth-child(1) { height: 30%;  animation-delay: 0s;   }
+  .wired-signal .bars span:nth-child(2) { height: 55%;  animation-delay: 0.2s; }
+  .wired-signal .bars span:nth-child(3) { height: 75%;  animation-delay: 0.4s; }
+  .wired-signal .bars span:nth-child(4) { height: 100%; animation-delay: 0.6s; }
+  @keyframes barPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .wired-signal .rec-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #ff2d55;
+    box-shadow: 0 0 8px #ff2d55;
+    animation: recBlink 1.2s ease-in-out infinite;
+  }
+  @keyframes recBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+
+  /* Card breath glow */
+  .profile-card, .spotify-card {
+    animation: cardBreath 6s ease-in-out infinite;
+  }
+  @keyframes cardBreath {
+    0%, 100% { box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 1px rgba(204,126,153,0.08); }
+    50%      { box-shadow: 0 15px 45px rgba(0,0,0,0.7), 0 0 22px rgba(204,126,153,0.15); }
+  }
+
+  /* Social btn hover chromatic */
+  .social-btn:hover {
+    background: rgba(204,126,153,0.15) !important;
+    border-color: rgba(204,126,153,0.45) !important;
+    box-shadow: 0 0 18px rgba(204,126,153,0.45),
+                2px 0 0 rgba(255,45,85,0.4),
+               -2px 0 0 rgba(0,255,240,0.4);
+  }
+  .social-btn:hover img {
+    filter: drop-shadow(1px 0 0 rgba(255,45,85,0.7)) drop-shadow(-1px 0 0 rgba(0,255,240,0.7));
+  }
+
+  /* Easter hint (dica no canto) */
+  .easter-hint {
+    position: fixed;
+    bottom: 14px;
+    right: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    color: rgba(204,126,153,0.25);
+    letter-spacing: 2px;
+    z-index: 50;
+    pointer-events: none;
+    text-transform: uppercase;
+  }
+  .easter-hint .key {
+    color: rgba(255,255,255,0.45);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 1px 4px;
+    margin: 0 1px;
+    border-radius: 2px;
+  }
 </style>
 </head>
 <body>
@@ -376,6 +768,20 @@
   <audio id="audio-loop" loop><source src="./songs/chimerical.mp3" type="audio/mpeg"></audio>
   <audio id="audio-whoosh"><source src="./songs/EyeSfx.MP3" type="audio/mpeg"></audio>
   <audio id="audio-bg-effect" loop><source src="./songs/background_keyboard.MP3" type="audio/mpeg"></audio>
+  <audio id="audio-glitch"><source src="./songs/Distortion.MP3" type="audio/mpeg"></audio>
+
+  <canvas id="static-canvas"></canvas>
+  <div id="floating-terms"></div>
+  <div class="vignette"></div>
+  <div class="crt-overlay"></div>
+  <div id="eye-flash"></div>
+
+  <div id="easter-overlay">
+    <div class="easter-bg"></div>
+    <div class="easter-tint"></div>
+    <div class="easter-text" id="easter-text">LET'S ALL LOVE LAIN</div>
+    <div class="easter-sub">close the world. open the next.</div>
+  </div>
 
   <div id="hacker-root" onclick="startExperience()">
     <img src="./imgs/eye_closed.gif" id="bg-eye-gif" class="bg-gif" alt="background effect">
@@ -385,6 +791,8 @@
       <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
       <div class="corner corner-bl"></div><div class="corner corner-br"></div>
       
+      <div class="present-day">PRESENT DAY <span class="haha">— PRESENT TIME</span></div>
+
       <div class="center">
         <div class="tag-line"> Make your own visible UNIVERSE </div>
         <div class="divider-splash"></div>
@@ -394,6 +802,15 @@
         <div class="divider-splash"></div>
         <div class="sub"> Click to feel </div>
       </div>
+
+      <div class="boot-lines" id="boot-lines">
+        <div class="boot-line"><span class="dim">&gt;</span> connecting to the wired <span class="ok">[ ok ]</span></div>
+        <div class="boot-line"><span class="dim">&gt;</span> handshake :: protocol_7 <span class="ok">[ ok ]</span></div>
+        <div class="boot-line"><span class="dim">&gt;</span> navi.os :: v7.66 booting <span class="ok">[ ok ]</span></div>
+        <div class="boot-line"><span class="dim">&gt;</span> layer_07 sync . . . <span class="ok">[ ok ]</span></div>
+        <div class="boot-line"><span class="dim">&gt;</span> psyche injector :: armed <span class="err">[ ! ]</span></div>
+      </div>
+
       <div class="status" id="clock">00:00:00</div>
     </div>
   </div>
@@ -403,6 +820,23 @@
       <canvas id="matrix-dashboard"></canvas>
       
       <img src="./imgs/lain_slime.gif" class="bottom-gif" alt="efeito visual">
+      <img src="./lain-assets/dist-lain.png" class="lain-peek" id="lain-peek" alt="lain">
+
+      <div class="wired-hud" id="wired-hud">
+        <div><span class="label">node ::</span> <span class="val">navi.italo.dev</span></div>
+        <div><span class="label">layer ::</span> <span class="val">07</span> &nbsp; <span class="label">proto ::</span> <span class="val">PSY/7</span></div>
+        <div><span class="label">ip ::</span> <span class="val" id="hud-ip">000.000.000.000</span></div>
+        <div><span class="label">tx ::</span> <span class="val" id="hud-tx">0.00kb</span> &nbsp; <span class="label">rx ::</span> <span class="val" id="hud-rx">0.00kb</span></div>
+        <div><span class="label">status ::</span> <span class="ok">connected to the wired</span></div>
+      </div>
+
+      <div class="wired-signal">
+        <span class="rec-dot"></span>
+        REC
+        <span class="bars"><span></span><span></span><span></span><span></span></span>
+      </div>
+
+      <div class="easter-hint">type <span class="key">L</span><span class="key">A</span><span class="key">I</span><span class="key">N</span></div>
 
       <div class="cards-column">
       <div class="profile-card">
@@ -486,7 +920,7 @@
               <img src="./imgs/avatar_static.png" id="main-avatar" alt="Avatar">
             </div>
           </div>
-          <p class="profile-name">Italo.dev</p>
+          <p class="profile-name glitch-text" id="profile-name" data-text="Italo.dev">Italo.dev</p>
           <p class="profile-bio">Bem vindo à minha página</p>
         </div>
         <div class="social-links">
@@ -608,6 +1042,8 @@ function resizeSplash() {
 }
 window.addEventListener('resize', resizeSplash); resizeSplash();
 
+splashRoot.addEventListener('click', startExperience, true);
+
 function drawSplash() {
   splashCtx.fillStyle = 'rgba(0,0,0,0.06)'; splashCtx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
   splashCtx.fillStyle = '#CC7E99'; 
@@ -627,6 +1063,10 @@ let experienceStarted = false;
 function startExperience() {
   if (experienceStarted) return;
   experienceStarted = true;
+
+  var flashEl = document.getElementById('eye-flash');
+  if (flashEl) { flashEl.classList.add('flash'); setTimeout(function() { flashEl.classList.remove('flash'); }, 700); }
+  setTimeout(function() { var p = document.getElementById('lain-peek'); if (p) p.classList.add('show'); }, 4200);
 
   const audioWhoosh = document.getElementById('audio-whoosh');
   document.getElementById('bg-eye-gif').src = "./imgs/eye_opening.gif";
@@ -795,6 +1235,161 @@ function toggleSpotify() {
 
 updateMainPlayer(currentMainTrack);
 renderPlaylist();
+
+/* ============================================================ */
+/* LAIN ENHANCEMENTS                                            */
+/* ============================================================ */
+try {
+
+  /* TV STATIC NOISE */
+  var _sc = document.getElementById('static-canvas');
+  var _sctx = _sc ? _sc.getContext('2d') : null;
+  if (_sc && _sctx) {
+    var _resizeSC = function() {
+      _sc.width  = Math.floor(window.innerWidth  / 2);
+      _sc.height = Math.floor(window.innerHeight / 2);
+      _sc.style.width  = window.innerWidth  + 'px';
+      _sc.style.height = window.innerHeight + 'px';
+    };
+    _resizeSC();
+    window.addEventListener('resize', _resizeSC);
+    var _drawStatic = function() {
+      var w = _sc.width, h = _sc.height;
+      var id = _sctx.createImageData(w, h);
+      var buf = id.data;
+      for (var si = 0; si < buf.length; si += 4) {
+        var sv = (Math.random() * 255) | 0;
+        buf[si] = sv; buf[si+1] = sv; buf[si+2] = sv; buf[si+3] = 255;
+      }
+      _sctx.putImageData(id, 0, 0);
+      setTimeout(_drawStatic, 80);
+    };
+    _drawStatic();
+  }
+
+  /* CURSOR TRAIL */
+  var _trailLast = 0;
+  document.addEventListener('mousemove', function(e) {
+    var now = performance.now();
+    if (now - _trailLast < 30) return;
+    _trailLast = now;
+    var dot = document.createElement('div');
+    dot.className = 'trail-dot';
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+    document.body.appendChild(dot);
+    setTimeout(function() { if (dot.parentNode) dot.parentNode.removeChild(dot); }, 900);
+  });
+
+  /* BOOT LINES */
+  var _bootLines = document.querySelectorAll('#boot-lines .boot-line');
+  for (var _bi = 0; _bi < _bootLines.length; _bi++) {
+    (function(el, delay) {
+      setTimeout(function() { el.classList.add('visible'); }, delay);
+    })(_bootLines[_bi], 400 + _bi * 500);
+  }
+
+  /* PROFILE NAME GLITCH */
+  var _glitchEl = document.getElementById('profile-name');
+  if (_glitchEl) {
+    setInterval(function() {
+      if (Math.random() > 0.55) {
+        _glitchEl.classList.add('glitching');
+        setTimeout(function() { _glitchEl.classList.remove('glitching'); }, 450);
+      }
+    }, 3200);
+  }
+
+  /* SCREEN TEAR */
+  setInterval(function() {
+    if (experienceStarted && Math.random() > 0.72) {
+      document.documentElement.classList.add('screen-tear');
+      setTimeout(function() { document.documentElement.classList.remove('screen-tear'); }, 350);
+    }
+  }, 9000);
+
+  /* FLOATING WIRED TERMS */
+  var _ftHost = document.getElementById('floating-terms');
+  var _ftPool = [
+    'NAVI.OS', 'PROTOCOL 7', 'KNIGHTS OF THE EASTERN CALCULUS',
+    'CLOSE THE WORLD :: OPEN THE NEXT', 'PSYCHE', 'LAYER 07',
+    'no matter where you go, everyone is connected',
+    "YOU DON'T SEEM TO UNDERSTAND", 'TX > 192.168.7.7',
+    'WE ARE ALREADY CONNECTED', 'god is here',
+    'CHIAKI J. KONAKA', 'TACHIBANA GENERAL LABS', 'WIRED//ON',
+    "I'M EVERYWHERE", 'remember... do you remember?',
+    'SYS::INTRUSION_DETECTED', 'PROTOCOL_SEVEN_ENGAGED'
+  ];
+  if (_ftHost) {
+    setInterval(function() {
+      if (!experienceStarted) return;
+      var el = document.createElement('div');
+      el.className = 'floating-term';
+      el.textContent = _ftPool[Math.floor(Math.random() * _ftPool.length)];
+      el.style.top = (5 + Math.random() * 90) + 'vh';
+      var dur = 18 + Math.random() * 22;
+      el.style.animation = (Math.random() > 0.5 ? 'driftRight' : 'driftLeft') + ' ' + dur + 's linear forwards';
+      el.style.fontSize = (9 + Math.random() * 6) + 'px';
+      el.style.opacity  = (0.12 + Math.random() * 0.18).toString();
+      _ftHost.appendChild(el);
+      setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, dur * 1000 + 500);
+    }, 2200);
+  }
+
+  /* WIRED HUD */
+  var _hudIp = document.getElementById('hud-ip');
+  var _hudTx = document.getElementById('hud-tx');
+  var _hudRx = document.getElementById('hud-rx');
+  if (_hudIp) {
+    var _hudTxV = 0, _hudRxV = 0;
+    var _p3 = function(n) { return String(n).padStart(3, '0'); };
+    var _randIp = function() {
+      return _p3(127) + '.' + _p3(Math.floor(Math.random()*255)) + '.7.' + _p3(Math.floor(Math.random()*255));
+    };
+    setInterval(function() {
+      if (!experienceStarted) return;
+      _hudTxV += Math.random() * 12;
+      _hudRxV += Math.random() * 28;
+      _hudIp.textContent = _randIp();
+      _hudTx.textContent = _hudTxV.toFixed(2) + 'kb';
+      _hudRx.textContent = _hudRxV.toFixed(2) + 'kb';
+    }, 1200);
+  }
+
+  /* EASTER EGG: digitar L-A-I-N */
+  var _eggOverlay = document.getElementById('easter-overlay');
+  var _eggText    = document.getElementById('easter-text');
+  var _eggAudio   = document.getElementById('audio-glitch');
+  var _eggBuf     = [];
+  var _eggActive  = false;
+  var _eggPhrases = [
+    "LET'S ALL LOVE LAIN", 'I AM EVERYWHERE',
+    "YOU DON'T NEED A BODY", 'PROTOCOL :: SEVEN', 'CLOSE THE WORLD'
+  ];
+  var _eggShow = function() {
+    if (_eggActive || !_eggOverlay) return;
+    _eggActive = true;
+    _eggText.textContent = _eggPhrases[Math.floor(Math.random() * _eggPhrases.length)];
+    _eggOverlay.classList.add('show');
+    try { _eggAudio.currentTime = 0; _eggAudio.volume = 0.7; _eggAudio.play(); } catch(e2) {}
+    document.documentElement.classList.add('screen-tear');
+    setTimeout(function() { document.documentElement.classList.remove('screen-tear'); }, 400);
+    setTimeout(function() { _eggOverlay.classList.remove('show'); _eggActive = false; }, 3800);
+  };
+  window.addEventListener('keydown', function(e) {
+    var k = (e.key || '').toLowerCase();
+    if (!/^[a-z]$/.test(k)) { _eggBuf = []; return; }
+    _eggBuf.push(k);
+    if (_eggBuf.length > 4) _eggBuf.shift();
+    if (_eggBuf.join('') === 'lain') { _eggShow(); _eggBuf = []; }
+  });
+  if (_eggOverlay) {
+    _eggOverlay.addEventListener('click', function() {
+      if (_eggActive) { _eggOverlay.classList.remove('show'); _eggActive = false; }
+    });
+  }
+
+} catch(e) { console.error('Lain enhancements error:', e); }
 </script>
 </body>
 </html>
